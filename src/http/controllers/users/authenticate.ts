@@ -58,7 +58,7 @@ export async function authenticate(
       });
   } catch (error) {
     if (error instanceof InvalidCredentialsError) {
-      reply.status(400).send({ message: error.message });
+      reply.status(401).send({ message: error.message });
     }
     throw error;
   }
