@@ -6,6 +6,10 @@ import { gymsRoutes } from './http/controllers/gyms/routes';
 import { ZodError } from 'zod';
 import { env } from './env';
 import { checkInsRoutes } from './http/controllers/check-ins/routes';
+import { ResourceNotFoundError } from './use-cases/errors/resource-not-found-error';
+import { LateCheckInValidationError } from './use-cases/errors/late-check-in-validation-error';
+import { MaxDistanceError } from './use-cases/errors/max-distance-error';
+import { MaxNumberofCheckInsError } from './use-cases/errors/max-number-of-check-ins-error';
 
 export const app = fastify();
 
@@ -31,6 +35,18 @@ app.setErrorHandler((error, _request, reply) => {
     return reply
       .status(400)
       .send({ message: 'Validation error.', issues: error.format() });
+  }
+
+  if (error instanceof ResourceNotFoundError) {
+    return reply.status(404).send({ message: 'Resource not found.' });
+  }
+
+  if (
+    error instanceof LateCheckInValidationError ||
+    error instanceof MaxDistanceError ||
+    error instanceof MaxNumberofCheckInsError
+  ) {
+    return reply.status(400).send({ message: error.message });
   }
 
   if (env.NODE_ENV !== 'production') {
